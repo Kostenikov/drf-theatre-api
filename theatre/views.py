@@ -1,6 +1,16 @@
+from django.db.models import Prefetch
+from django.template.context_processors import request
 from rest_framework import viewsets
 
-from theatre.models import Actor, Genre, Play, TheatreHall, Performance
+from theatre.models import (
+    Actor,
+    Genre,
+    Play,
+    TheatreHall,
+    Performance,
+    Reservation,
+    Ticket,
+)
 from theatre.serializers import (
     ActorSerializer,
     GenreSerializer,
@@ -11,6 +21,7 @@ from theatre.serializers import (
     PerformanceSerializer,
     PerformanceListSerializer,
     PerformanceDetailSerializer,
+    ReservationSerializer,
 )
 
 
@@ -49,3 +60,22 @@ class PerformanceViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return PerformanceDetailSerializer
         return PerformanceSerializer
+
+
+class ReservationViewSet(viewsets.ModelViewSet):
+    queryset = Reservation.objects.prefetch_related(
+        Prefetch(
+            "tickets",
+            queryset=Ticket.objects.select_related(
+                "performance__play", "performance__theatre_hall"
+            ).order_by("row", "seat"),
+        )
+    )
+    serializer_class = ReservationSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(user=self.request.user)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
