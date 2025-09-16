@@ -1,4 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models.constraints import UniqueConstraint
+
+User = get_user_model()
 
 
 class Actor(models.Model):
@@ -58,3 +62,45 @@ class Performance(models.Model):
 
     def __str__(self) -> str:
         return f"{self.play.title} ({self.show_time})"
+
+
+class Reservation(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="reservations",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return str(self.created_at)
+
+
+class Ticket(models.Model):
+    performance = models.ForeignKey(
+        Performance,
+        on_delete=models.CASCADE,
+        related_name="tickets",
+    )
+    reservation = models.ForeignKey(
+        Reservation,
+        on_delete=models.CASCADE,
+        related_name="tickets",
+    )
+    row = models.PositiveIntegerField()
+    seat = models.PositiveIntegerField()
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=["performance", "row", "seat"],
+                name="unique_ticket_performance_row_seat",
+            )
+        ]
+        ordering = ["row", "seat"]
+
+    def __str__(self) -> str:
+        return f"{self.performance} (row: {self.row}, seat: {self.seat})"
