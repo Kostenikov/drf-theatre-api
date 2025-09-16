@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, F, Count
 from django.template.context_processors import request
 from rest_framework import viewsets
 
@@ -52,7 +52,14 @@ class TheatreHallViewSet(viewsets.ModelViewSet):
 
 
 class PerformanceViewSet(viewsets.ModelViewSet):
-    queryset = Performance.objects.all()
+    queryset = Performance.objects.select_related(
+        "play", "theatre_hall"
+    ).annotate(
+        tickets_available=(
+            F("theatre_hall__rows") * F("theatre_hall__seats_in_row")
+            - Count("tickets")
+        )
+    )
 
     def get_serializer_class(self):
         if self.action == "list":
