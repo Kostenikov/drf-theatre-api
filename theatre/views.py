@@ -1,5 +1,6 @@
 from django.db.models import Prefetch, F, Count
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
+from rest_framework.permissions import IsAuthenticated
 
 from theatre.models import (
     Actor,
@@ -25,17 +26,30 @@ from theatre.serializers import (
 )
 
 
-class ActorViewSet(viewsets.ModelViewSet):
+class ActorViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
-class PlayViewSet(viewsets.ModelViewSet):
+class PlayViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = Play.objects.prefetch_related("actors", "genres")
 
     def get_serializer_class(self):
@@ -46,7 +60,11 @@ class PlayViewSet(viewsets.ModelViewSet):
         return PlaySerializer
 
 
-class TheatreHallViewSet(viewsets.ModelViewSet):
+class TheatreHallViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
 
@@ -77,7 +95,11 @@ class PerformanceViewSet(viewsets.ModelViewSet):
         return PerformanceSerializer
 
 
-class ReservationViewSet(viewsets.ModelViewSet):
+class ReservationViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = Reservation.objects.prefetch_related(
         Prefetch(
             "tickets",
@@ -87,6 +109,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
         )
     )
     serializer_class = ReservationSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
