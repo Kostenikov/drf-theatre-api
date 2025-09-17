@@ -157,6 +157,9 @@ REST_FRAMEWORK = {
         "anon": "20/min",
         "user": "60/min",
     },
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
 }
 
 SIMPLE_JWT = {

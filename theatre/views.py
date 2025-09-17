@@ -3,6 +3,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
 
+from theatre.filters import PerformanceFilter, PlayFilter
 from theatre.models import (
     Actor,
     Genre,
@@ -26,6 +27,7 @@ from theatre.serializers import (
     ReservationListSerializer,
 )
 
+
 @extend_schema(tags=["actor"])
 class ActorViewSet(
     mixins.CreateModelMixin,
@@ -34,6 +36,7 @@ class ActorViewSet(
 ):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
+
 
 @extend_schema(tags=["genre"])
 class GenreViewSet(
@@ -44,6 +47,7 @@ class GenreViewSet(
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
+
 @extend_schema(tags=["play"])
 class PlayViewSet(
     mixins.CreateModelMixin,
@@ -51,6 +55,7 @@ class PlayViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
+    filterset_class = PlayFilter
     queryset = Play.objects.prefetch_related("actors", "genres")
 
     def get_serializer_class(self):
@@ -59,6 +64,7 @@ class PlayViewSet(
         if self.action == "retrieve":
             return PlayDetailSerializer
         return PlaySerializer
+
 
 @extend_schema(tags=["theatre_hall"])
 class TheatreHallViewSet(
@@ -69,8 +75,10 @@ class TheatreHallViewSet(
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
 
+
 @extend_schema(tags=["performance"])
 class PerformanceViewSet(viewsets.ModelViewSet):
+    filterset_class = PerformanceFilter
     queryset = Performance.objects.select_related("play", "theatre_hall")
 
     def get_queryset(self):
@@ -94,6 +102,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return PerformanceDetailSerializer
         return PerformanceSerializer
+
 
 @extend_schema(tags=["reservation"])
 class ReservationViewSet(
