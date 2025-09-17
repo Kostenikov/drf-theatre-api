@@ -1,4 +1,5 @@
 from django.db.models import Prefetch, F, Count
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
 
@@ -25,7 +26,7 @@ from theatre.serializers import (
     ReservationListSerializer,
 )
 
-
+@extend_schema(tags=["actor"])
 class ActorViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -34,7 +35,7 @@ class ActorViewSet(
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
 
-
+@extend_schema(tags=["genre"])
 class GenreViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -43,7 +44,7 @@ class GenreViewSet(
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
-
+@extend_schema(tags=["play"])
 class PlayViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -59,7 +60,7 @@ class PlayViewSet(
             return PlayDetailSerializer
         return PlaySerializer
 
-
+@extend_schema(tags=["theatre_hall"])
 class TheatreHallViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -68,7 +69,7 @@ class TheatreHallViewSet(
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
 
-
+@extend_schema(tags=["performance"])
 class PerformanceViewSet(viewsets.ModelViewSet):
     queryset = Performance.objects.select_related("play", "theatre_hall")
 
@@ -94,7 +95,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
             return PerformanceDetailSerializer
         return PerformanceSerializer
 
-
+@extend_schema(tags=["reservation"])
 class ReservationViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,

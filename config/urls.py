@@ -29,14 +29,14 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/theatre/", include("theatre.urls", namespace="theatre")),
     path("api/accounts/", include("accounts.urls", namespace="accounts")),
-    path("api/doc/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "api/doc/swagger/",
+        "api/docs/swagger/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
     path(
-        "api/doc/redoc/",
+        "api/docs/redoc/",
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
