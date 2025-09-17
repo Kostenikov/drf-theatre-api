@@ -1,5 +1,4 @@
 from django.db.models import Prefetch, F, Count
-from django.template.context_processors import request
 from rest_framework import viewsets
 
 from theatre.models import (
@@ -22,6 +21,7 @@ from theatre.serializers import (
     PerformanceListSerializer,
     PerformanceDetailSerializer,
     ReservationSerializer,
+    ReservationListSerializer,
 )
 
 
@@ -91,6 +91,11 @@ class ReservationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
         return queryset
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ReservationListSerializer
+        return ReservationSerializer
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
