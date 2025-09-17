@@ -21,6 +21,8 @@ packaging==25.0
 pathspec==0.12.1
 pep8-naming==0.15.1
 platformdirs==4.4.0
+psycopg==3.2.10
+psycopg-binary==3.2.10
 pycodestyle==2.14.0
 pyflakes==3.4.0
 PyJWT==2.10.1
@@ -33,3 +35,4 @@ sqlparse==0.5.3
 typing_extensions==4.15.0
 tzdata==2025.2
 uritemplate==4.2.0
+whitenoise==6.10.0
