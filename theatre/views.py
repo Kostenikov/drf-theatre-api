@@ -1,4 +1,6 @@
 from django.db.models import Prefetch, F, Count
+from django_filters import rest_framework
+from rest_framework import filters
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
@@ -56,6 +58,12 @@ class PlayViewSet(
     viewsets.GenericViewSet,
 ):
     filterset_class = PlayFilter
+    filter_backends = (
+        filters.OrderingFilter,
+        rest_framework.DjangoFilterBackend,
+    )
+    ordering_fields = ["title"]
+    ordering = ["title"]
     queryset = Play.objects.prefetch_related("actors", "genres")
 
     def get_serializer_class(self):
@@ -79,6 +87,12 @@ class TheatreHallViewSet(
 @extend_schema(tags=["performance"])
 class PerformanceViewSet(viewsets.ModelViewSet):
     filterset_class = PerformanceFilter
+    filter_backends = (
+        filters.OrderingFilter,
+        rest_framework.DjangoFilterBackend,
+    )
+    ordering_fields = ["show_time", "play__title"]
+    ordering = ["-show_time", "play__title"]
     queryset = Performance.objects.select_related("play", "theatre_hall")
 
     def get_queryset(self):
