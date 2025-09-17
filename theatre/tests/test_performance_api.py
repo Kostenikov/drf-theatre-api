@@ -35,7 +35,7 @@ class PerformanceApiTests(TestCase):
         self.play1 = Play.objects.create(title="Hamlet")
         self.play2 = Play.objects.create(title="Macbeth")
 
-        now = timezone.now()
+        now = timezone.localtime(timezone.now())
         self.performance1 = Performance.objects.create(
             play=self.play1, theatre_hall=self.hall1, show_time=now
         )
@@ -62,7 +62,7 @@ class PerformanceApiTests(TestCase):
         res = self.client.get(PERFORMANCE_URL, {"play": "Hamlet"})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data["results"]), 1)
-        self.assertEqual(res.data["results"][0]["play"], "Hamlet")
+        self.assertEqual(res.data["results"][0]["play"], self.play1.title)
 
     def test_filter_by_theatre_hall(self):
         self.client.force_authenticate(self.user)
@@ -75,11 +75,12 @@ class PerformanceApiTests(TestCase):
 
     def test_filter_by_show_date(self):
         self.client.force_authenticate(self.user)
-        date_str = self.performance2.show_time.date()
+        local_show_time = timezone.localtime(self.performance2.show_time)
+        date_str = local_show_time.date().isoformat()
         res = self.client.get(PERFORMANCE_URL, {"show_date": date_str})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data["results"]), 1)
-        self.assertEqual(res.data["results"][0]["play"], "Macbeth")
+        self.assertEqual(res.data["results"][0]["play"], self.play2.title)
 
     def test_create_performance_as_admin(self):
         self.client.force_authenticate(self.admin)
